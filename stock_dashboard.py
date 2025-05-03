@@ -4,6 +4,7 @@ import pandas as pd
 import plotly.graph_objects as go
 import plotly.express as px
 from datetime import datetime, timedelta
+from prophet import Prophet
 
 # Set page config
 st.set_page_config(page_title="Top NSE Stocks Dashboard", layout="wide")
@@ -179,6 +180,33 @@ fig_top5.update_layout(
     height=500
 )
 st.plotly_chart(fig_top5, use_container_width=True)
+
+# Forecasting Section
+st.subheader("12-Week Price Forecast (Prophet Model)")
+
+# Prepare data for Prophet
+prophet_df = df.reset_index()[['Date' if 'Date' in df.reset_index().columns else df.index.name, 'Close']]
+prophet_df.columns = ['ds', 'y']
+
+# Fit Prophet model
+m = Prophet()
+m.fit(prophet_df)
+
+# Create future dataframe for 12 weeks (5 trading days per week)
+future = m.make_future_dataframe(periods=12*5, freq='B')
+forecast = m.predict(future)
+
+# Plot forecast
+fig_forecast = go.Figure()
+fig_forecast.add_trace(go.Scatter(x=prophet_df['ds'], y=prophet_df['y'], name='Historical'))
+fig_forecast.add_trace(go.Scatter(x=forecast['ds'], y=forecast['yhat'], name='Forecast'))
+fig_forecast.update_layout(
+    title="12-Week Forecast vs Historical Prices",
+    xaxis_title="Date",
+    yaxis_title="Price (INR)",
+    height=500
+)
+st.plotly_chart(fig_forecast, use_container_width=True)
 
 # Footer
 st.markdown("---")
