@@ -182,4 +182,20 @@ st.plotly_chart(fig_top5, use_container_width=True)
 
 # Footer
 st.markdown("---")
-st.markdown("Data source: Yahoo Finance | Last updated: " + datetime.now().strftime("%Y-%m-%d %H:%M:%S")) 
+st.markdown("Data source: Yahoo Finance | Last updated: " + datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+
+# Q&A Search
+st.sidebar.header("Q&A Search")
+user_question = st.sidebar.text_input("Ask a question about the stocks:")
+
+if user_question:
+    # Example: Search for keywords in stock_info
+    answer = None
+    for key, value in stock_info.items():
+        if user_question.lower() in str(key).lower():
+            answer = f"{key}: {value}"
+            break
+    if answer:
+        st.sidebar.success(answer)
+    else:
+        st.sidebar.info("Sorry, I couldn't find an answer to your question.") 
