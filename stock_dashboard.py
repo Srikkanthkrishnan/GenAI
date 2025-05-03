@@ -162,6 +162,24 @@ fig_comp.update_layout(
 )
 st.plotly_chart(fig_comp, use_container_width=True)
 
+# Comparison of Top 5 Stocks
+st.subheader("Top 5 Stocks: Normalized Price Comparison")
+top5_stocks = top_stocks[:5]
+fig_top5 = go.Figure()
+for symbol in top5_stocks:
+    stock_df, _ = get_stock_data(symbol, time_period)
+    if stock_df.empty or 'Close' not in stock_df or len(stock_df['Close']) < 2:
+        continue
+    normalized = stock_df['Close'] / stock_df['Close'].iloc[0] * 100
+    fig_top5.add_trace(go.Scatter(x=stock_df.index, y=normalized, name=symbol))
+fig_top5.update_layout(
+    title="Top 5 Stocks Normalized Price Comparison (Base=100)",
+    xaxis_title="Date",
+    yaxis_title="Normalized Price",
+    height=500
+)
+st.plotly_chart(fig_top5, use_container_width=True)
+
 # Footer
 st.markdown("---")
 st.markdown("Data source: Yahoo Finance | Last updated: " + datetime.now().strftime("%Y-%m-%d %H:%M:%S")) 
