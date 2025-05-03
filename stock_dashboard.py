@@ -18,10 +18,14 @@ def get_nse_data():
     return nse
 
 nse_data = get_nse_data()
-today_close = float(nse_data['Close'].iloc[-1])
-prev_close = float(nse_data['Close'].iloc[-2])
-change = today_close - prev_close
-change_percent = (change / prev_close) * 100
+if nse_data.empty or 'Close' not in nse_data or len(nse_data['Close']) < 2:
+    st.error("NSE data could not be loaded or is insufficient. Please try again later.")
+    st.stop()
+else:
+    today_close = float(nse_data['Close'].iloc[-1])
+    prev_close = float(nse_data['Close'].iloc[-2])
+    change = today_close - prev_close
+    change_percent = (change / prev_close) * 100
 
 # Add NSE Index Cards at the top
 st.markdown("### NSE Index Overview")
@@ -67,6 +71,10 @@ def get_stock_data(symbol, period):
 
 # Get data for selected stock
 df, stock_info = get_stock_data(selected_stock, time_period)
+
+if df.empty or 'Close' not in df or len(df['Close']) < 2:
+    st.error(f"Data for {selected_stock} could not be loaded or is insufficient. Please try again later.")
+    st.stop()
 
 # Main content
 col1, col2 = st.columns(2)
@@ -137,6 +145,9 @@ st.plotly_chart(fig_ma, use_container_width=True)
 # Comparison with NIFTY 50
 st.subheader("Comparison with NIFTY 50")
 nifty_data = yf.download('^NSEI', period=time_period)
+if nifty_data.empty or 'Close' not in nifty_data or len(nifty_data['Close']) < 2:
+    st.error("NIFTY 50 data could not be loaded or is insufficient. Please try again later.")
+    st.stop()
 normalized_stock = df['Close'] / df['Close'].iloc[0] * 100
 normalized_nifty = nifty_data['Close'] / nifty_data['Close'].iloc[0] * 100
 
